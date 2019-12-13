@@ -7,8 +7,10 @@
 //
 
 import UIKit
+import MessageKit
+import InputBarAccessoryView
 
-class MessageThreadDetailTableViewController: UITableViewController {
+class MessageThreadDetailTableViewController: MessagesViewController {
 
     // MARK: - Properties
     
@@ -19,29 +21,10 @@ class MessageThreadDetailTableViewController: UITableViewController {
         super.viewDidLoad()
 
         title = messageThread?.title
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        self.tableView.reloadData()
-    }
-    
-    // MARK: - UITableViewDataSource
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return messageThread?.messages.count ?? 0
-    }
-
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MessageCell", for: indexPath)
-
-        let message = messageThread?.messages[indexPath.row]
-        
-        cell.textLabel?.text = message?.text
-        cell.detailTextLabel?.text = message?.displayName
-        
-        return cell
+        messageInputBar.delegate = self
+        messagesCollectionView.messagesDataSource = self
+        messagesCollectionView.messagesLayoutDelegate = self
+        messagesCollectionView.messagesDisplayDelegate = self
     }
 
     // MARK: - Navigation
@@ -54,4 +37,34 @@ class MessageThreadDetailTableViewController: UITableViewController {
             destinationVC.messageThread = messageThread
         }
     }    
+}
+
+extension MessageThreadDetailTableViewController: MessagesDataSource {
+    
+    func currentSender() -> SenderType {
+        return Sender(senderId: "", displayName: "")
+    }
+    
+    func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {
+        return messageThread!.messages[indexPath.item]
+    }
+    
+    func numberOfSections(in messagesCollectionView: MessagesCollectionView) -> Int {
+        return 1
+    }
+    
+}
+
+extension MessageThreadDetailTableViewController: MessagesLayoutDelegate {
+    
+}
+
+extension MessageThreadDetailTableViewController: MessagesDisplayDelegate {
+    
+}
+
+extension MessageThreadDetailTableViewController: InputBarAccessoryViewDelegate {
+    func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
+        
+    }
 }
